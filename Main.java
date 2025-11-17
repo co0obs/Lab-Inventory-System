@@ -1,9 +1,11 @@
+import java.util.ArrayList;
 import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) {
 
         Scanner input = new Scanner(System.in);
+        ArrayList<String> items = new ArrayList<>();
         int choice;
 
         do {
@@ -14,6 +16,9 @@ public class Main {
             System.out.println("4. Exit");
             System.out.print("Enter your choice: ");
             choice = input.nextInt();
+            input.nextLine(); // clear buffer
+
+            // logic will be added in the next versions
 
         } while (choice != 4);
 
