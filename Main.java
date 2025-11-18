@@ -2,6 +2,7 @@ import java.util.ArrayList;
 import java.util.Scanner;
 
 public class Main {
+
     public static void main(String[] args) {
 
         Scanner input = new Scanner(System.in);
@@ -18,7 +19,30 @@ public class Main {
             choice = input.nextInt();
             input.nextLine(); // clear buffer
 
-            // logic will be added in the next versions
+            switch (choice) {
+
+                case 1: // add Item
+                    System.out.print("Enter item name to add: ");
+                    String newItem = input.nextLine();
+                    items.add(newItem);
+                    System.out.println("Item added!");
+                    break;
+
+                case 2: // remove item 
+                    System.out.println("Remove feature not yet implemented.");
+                    break;
+
+                case 3: // view items
+                    System.out.println("View feature not yet implemented.");
+                    break;
+
+                case 4:
+                    System.out.println("Exiting system...");
+                    break;
+
+                default:
+                    System.out.println("Invalid choice. Try again.");
+            }
 
         } while (choice != 4);
 
