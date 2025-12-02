@@ -1,4 +1,3 @@
-import java.util.ArrayList;
 import java.util.Scanner;
 
 public class Main {
@@ -6,7 +5,7 @@ public class Main {
     public static void main(String[] args) {
 
         Scanner input = new Scanner(System.in);
-        ArrayList<String> items = new ArrayList<>();
+        ItemManager manager = new ItemManager();
         int choice;
 
         do {
@@ -21,19 +20,18 @@ public class Main {
 
             switch (choice) {
 
-                case 1: // add Item
+                case 1:
                     System.out.print("Enter item name to add: ");
                     String newItem = input.nextLine();
-                    items.add(newItem);
-                    System.out.println("Item added!");
+                    manager.addItem(newItem);
                     break;
 
-                case 2: // remove item 
-                    System.out.println("Remove feature not yet implemented.");
+                case 2:
+                    manager.removeItem("");
                     break;
 
-                case 3: // view items
-                    System.out.println("View feature not yet implemented.");
+                case 3:
+                    manager.viewItems();
                     break;
 
                 case 4:
