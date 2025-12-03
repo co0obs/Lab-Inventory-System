@@ -4,17 +4,22 @@ public class ItemManager {
 
     private ArrayList<String> items = new ArrayList<>();
 
-    // Add item
+    // Add items
     public void addItem(String item) {
         items.add(item);
         System.out.println("Item added!");
     }
 
-    // placeholder: remove + view 
+    // remove items
     public void removeItem(String item) {
-        System.out.println("Remove feature not yet implemented.");
+        if (items.remove(item)){
+            System.out.println("Item removed successfully!");
+        } else {
+            System.out.println("Item not found.");
+        }
     }
 
+    // view items
     public void viewItems() {
         System.out.println("\n--- Current Items ---");
 
