@@ -28,25 +28,33 @@ public class Main {
             System.out.println("Welcome, Student " + userId + "!");
             isLabTech = false;
             
+                
         } else if (roleChoice == 2) {
             // Lab Technician login
-            System.out.print("Enter 6-digit Lab Technician Code: ");
-            String code = input.nextLine();
+            boolean codeValid = false;
             
-            if (code.equals(LAB_TECH_CODE)) {
-                System.out.println("Access granted. Welcome, Lab Technician!");
-                isLabTech = true;
-            } else {
+            for (int attempts = 0; attempts < 3; attempts++) {
+                System.out.print("Enter 6-digit Lab Technician Code: ");
+                String code = input.nextLine();
+                
+                if (code.equals(LAB_TECH_CODE)) {
+                    System.out.println("Access granted. Welcome, Lab Technician!");
+                    isLabTech = true;
+                    codeValid = true;
+                    break;
+                } else {
+                    if (attempts < 2) {
+                        System.out.println("Invalid code. Try again. (" + (2 - attempts) + " attempts remaining)");
+                    }
+                }
+            }
+            
+            if (!codeValid) {
                 System.out.println("Invalid code. Access denied. Exiting system...");
                 input.close();
                 return;
             }
             
-        } else {
-            System.out.println("Invalid choice. Exiting system...");
-            input.close();
-            return;
-        }
         
         // Main menu loop
         int choice;
@@ -129,4 +137,5 @@ public class Main {
 
         input.close();
     }
+}
 }
