@@ -1,62 +1,70 @@
 public class Item {
-    
+
+    private int id;
     private String name;
     private int quantity;
+    private String category;
     private AccessLevel accessLevel;
-    
-    // Constructor
-    public Item(String name, int quantity, AccessLevel accessLevel) {
+
+    public Item(int id, String name, int quantity, String category, AccessLevel accessLevel) {
+        this.id = id;
         this.name = name;
         this.quantity = quantity;
+        this.category = category;
         this.accessLevel = accessLevel;
     }
-    
-    // Getters
+
+    public int getId() {
+        return id;
+    }
+
     public String getName() {
         return name;
     }
-    
+
     public int getQuantity() {
         return quantity;
     }
-    
+
+    public String getCategory() {
+        return category;
+    }
+
     public AccessLevel getAccessLevel() {
         return accessLevel;
     }
-    
-    // Setters
+
     public void setName(String name) {
         this.name = name;
     }
-    
+
     public void setQuantity(int quantity) {
         this.quantity = quantity;
     }
-    
+
+    public void setCategory(String category) {
+        this.category = category;
+    }
+
     public void setAccessLevel(AccessLevel accessLevel) {
         this.accessLevel = accessLevel;
     }
-    
-    // Utility methods
-    public void increaseQuantity(int amount) {
-        this.quantity += amount;
-    }
-    
+
     public boolean decreaseQuantity(int amount) {
-        if (this.quantity >= amount) {
-            this.quantity -= amount;
-            return true;
+        if (amount <= 0 || amount > quantity) {
+            return false;
         }
-        return false;
+        quantity -= amount;
+        return true;
     }
-    
-    public boolean isAvailable() {
-        return quantity > 0;
+
+    public void increaseQuantity(int amount) {
+        if (amount > 0) {
+            quantity += amount;
+        }
     }
-    
-    @Override
+
     public String toString() {
-        String access = (accessLevel == AccessLevel.LAB_TECH_ONLY) ? "Lab Tech Only" : "All Users";
-        return name + " | Qty: " + quantity + " | Access: " + access;
+        return name + " (Qty: " + quantity + ", Category: " + category + ", Access: " + accessLevel + ")";
     }
 }
