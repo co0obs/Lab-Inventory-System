@@ -7,7 +7,8 @@ public class Main {
     public static void main(String[] args) {
 
         Scanner input = new Scanner(System.in);
-        ItemManager manager = new ItemManager();
+        ItemManager itemManager = new ItemManager();
+        CheckInOutManager checkInOutManager = new CheckInOutManager(itemManager);
         
         // Login/Role Selection
         System.out.println("\n=== LAB INVENTORY SYSTEM ===");
@@ -28,7 +29,6 @@ public class Main {
             System.out.println("Welcome, Student " + userId + "!");
             isLabTech = false;
             
-                
         } else if (roleChoice == 2) {
             // Lab Technician login
             boolean codeValid = false;
@@ -50,11 +50,16 @@ public class Main {
             }
             
             if (!codeValid) {
-                System.out.println("Invalid code. Access denied. Exiting system...");
+                System.out.println("Access denied. Exiting system...");
                 input.close();
                 return;
             }
             
+        } else {
+            System.out.println("Invalid choice. Exiting system...");
+            input.close();
+            return;
+        }
         
         // Main menu loop
         int choice;
@@ -63,19 +68,22 @@ public class Main {
             
             if (isLabTech) {
                 // Lab Technician Menu
-                System.out.println("1. Check-In Equipment");
-                System.out.println("2. Check-Out Equipment");
-                System.out.println("3. View Equipment");
-                System.out.println("4. Add Item");
-                System.out.println("5. Remove Item");
-                System.out.println("6. Exit");
+                System.out.println("1. View All Equipment");
+                System.out.println("2. Add Item");
+                System.out.println("3. Remove Item");
+                System.out.println("4. Check-Out Equipment");
+                System.out.println("5. Check-In Equipment");
+                System.out.println("6. View All Transactions");
+                System.out.println("7. View Active Checkouts");
+                System.out.println("8. Exit");
                 
             } else {
                 // Student Menu
-                System.out.println("1. View Equipment/Lab Materials");
-                System.out.println("2. Check-In Equipment");
-                System.out.println("3. Check-Out Equipment");
-                System.out.println("4. Exit");
+                System.out.println("1. View Available Equipment");
+                System.out.println("2. Check-Out Equipment");
+                System.out.println("3. Check-In Equipment");
+                System.out.println("4. View My Borrowed Items");
+                System.out.println("5. Exit");
             }
             
             System.out.print("Enter your choice: ");
@@ -86,27 +94,68 @@ public class Main {
                 // Lab Technician actions
                 switch (choice) {
                     case 1:
-                        System.out.println("[Check-In feature - Coming soon]");
+                        itemManager.viewItems();
                         break;
+                        
                     case 2:
-                        System.out.println("[Check-Out feature - Coming soon]");
+                        System.out.print("Enter item name: ");
+                        String newItemName = input.nextLine();
+                        System.out.print("Enter quantity: ");
+                        int newItemQty = input.nextInt();
+                        input.nextLine();
+                        System.out.println("Select access level:");
+                        System.out.println("1. Student Access (All users)");
+                        System.out.println("2. Lab Technician Only");
+                        System.out.print("Enter choice: ");
+                        int accessChoice = input.nextInt();
+                        input.nextLine();
+                        
+                        AccessLevel accessLevel = (accessChoice == 2) ? 
+                            AccessLevel.LAB_TECH_ONLY : AccessLevel.STUDENT_ACCESS;
+                        
+                        itemManager.addItem(newItemName, newItemQty, accessLevel);
                         break;
+                        
                     case 3:
-                        manager.viewItems();
-                        break;
-                    case 4:
-                        System.out.print("Enter item name to add: ");
-                        String newItem = input.nextLine();
-                        manager.addItem(newItem);
-                        break;
-                    case 5:
                         System.out.print("Enter item name to remove: ");
                         String itemToRemove = input.nextLine();
-                        manager.removeItem(itemToRemove);
+                        itemManager.removeItem(itemToRemove);
                         break;
+                        
+                    case 4:
+                        System.out.print("Enter item name to check out: ");
+                        String checkoutItem = input.nextLine();
+                        System.out.print("Enter quantity: ");
+                        int checkoutQty = input.nextInt();
+                        input.nextLine();
+                        System.out.print("Enter your Lab Tech ID: ");
+                        String labTechId = input.nextLine();
+                        checkInOutManager.checkOut(labTechId, checkoutItem, checkoutQty, true);
+                        break;
+                        
+                    case 5:
+                        System.out.print("Enter item name to check in: ");
+                        String checkinItem = input.nextLine();
+                        System.out.print("Enter quantity: ");
+                        int checkinQty = input.nextInt();
+                        input.nextLine();
+                        System.out.print("Enter your Lab Tech ID: ");
+                        String labTechIdReturn = input.nextLine();
+                        checkInOutManager.checkIn(labTechIdReturn, checkinItem, checkinQty);
+                        break;
+                        
                     case 6:
+                        checkInOutManager.viewTransactionHistory();
+                        break;
+                        
+                    case 7:
+                        checkInOutManager.viewActiveCheckouts();
+                        break;
+                        
+                    case 8:
                         System.out.println("Exiting system...");
                         break;
+                        
                     default:
                         System.out.println("Invalid choice. Try again.");
                 }
@@ -115,27 +164,42 @@ public class Main {
                 // Student actions
                 switch (choice) {
                     case 1:
-                        manager.viewItems();
+                        itemManager.viewStudentAccessibleItems();
                         break;
+                        
                     case 2:
-                        System.out.println("[Check-In feature - Coming soon]");
-                        System.out.println("Your ID: " + userId);
+                        System.out.print("Enter item name to check out: ");
+                        String checkoutItem = input.nextLine();
+                        System.out.print("Enter quantity: ");
+                        int checkoutQty = input.nextInt();
+                        input.nextLine();
+                        checkInOutManager.checkOut(userId, checkoutItem, checkoutQty, false);
                         break;
+                        
                     case 3:
-                        System.out.println("[Check-Out feature - Coming soon]");
-                        System.out.println("Your ID: " + userId);
+                        System.out.print("Enter item name to check in: ");
+                        String checkinItem = input.nextLine();
+                        System.out.print("Enter quantity: ");
+                        int checkinQty = input.nextInt();
+                        input.nextLine();
+                        checkInOutManager.checkIn(userId, checkinItem, checkinQty);
                         break;
+                        
                     case 4:
+                        checkInOutManager.viewUserBorrowedItems(userId);
+                        break;
+                        
+                    case 5:
                         System.out.println("Exiting system...");
                         break;
+                        
                     default:
                         System.out.println("Invalid choice. Try again.");
                 }
             }
 
-        } while ((isLabTech && choice != 6) || (!isLabTech && choice != 4));
+        } while ((isLabTech && choice != 8 ) || (!isLabTech && choice != 5));
 
         input.close();
     }
-}
 }
