@@ -6,8 +6,8 @@ public class ItemManager {
     private ArrayList<Item> items = new ArrayList<>();
 
     // Add item
-    public void addItem(String name, int quantity, AccessLevel accessLevel) {
-        Item newItem = new Item(name, quantity, accessLevel);
+    public void addItem(String name, int quantity, String category, AccessLevel accessLevel) {
+        Item newItem = new Item(name, quantity, category, accessLevel);
         items.add(newItem);
         System.out.println("Item added successfully!");
     }
@@ -89,7 +89,7 @@ public class ItemManager {
         }
     }
 
-    // Get all items (for other managers to use)
+    // Get all items
     public ArrayList<Item> getItems() {
         return items;
     }

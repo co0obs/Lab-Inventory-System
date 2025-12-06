@@ -1,21 +1,15 @@
 public class Item {
 
-    private int id;
     private String name;
     private int quantity;
     private String category;
     private AccessLevel accessLevel;
 
-    public Item(int id, String name, int quantity, String category, AccessLevel accessLevel) {
-        this.id = id;
+    public Item(String name, int quantity, String category, AccessLevel accessLevel) {
         this.name = name;
         this.quantity = quantity;
         this.category = category;
         this.accessLevel = accessLevel;
-    }
-
-    public int getId() {
-        return id;
     }
 
     public String getName() {
@@ -64,6 +58,7 @@ public class Item {
         }
     }
 
+    @Override
     public String toString() {
         return name + " (Qty: " + quantity + ", Category: " + category + ", Access: " + accessLevel + ")";
     }
