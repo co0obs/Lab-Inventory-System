@@ -1,168 +1,300 @@
-import javax.swing.JOptionPane;
+import javax.swing.*;
+import java.util.ArrayList;
 
 public class Main {
 
+    // Core Managers
+    private static ItemManager itemManager;
+    private static CheckInOutManager checkInOutManager;
+    
+    // Configuration
     private static final String LAB_TECH_CODE = "423881";
 
     public static void main(String[] args) {
+        
+        // 1. Initialize Logic
+        itemManager = new ItemManager();
+        checkInOutManager = new CheckInOutManager(itemManager);
+        
+        // 2. Load Data (Silent loading)
+        DataManager.loadData(itemManager, checkInOutManager);
 
-        // Initialize managers
-        ItemManager itemManager = new ItemManager();
-        CheckInOutManager checkInOutManager = new CheckInOutManager(itemManager);
+        // 3. Main System Loop (Login Screen)
+        boolean systemRunning = true;
+        while (systemRunning) {
+            String[] roles = {"Student", "Lab Technician", "Exit System"};
+            
+            // Show Login Selection Box
+            int roleChoice = JOptionPane.showOptionDialog(null, 
+                "Welcome to Lab Inventory System\nSelect your position:", 
+                "Lab System Login",
+                JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, 
+                null, roles, roles[0]);
 
-        // Role selection via GUI
-        String[] roles = {"Student", "Lab Technician"};
-        int roleChoice = JOptionPane.showOptionDialog(null,
-                "Select your position:",
-                "LAB INVENTORY SYSTEM",
-                JOptionPane.DEFAULT_OPTION,
-                JOptionPane.QUESTION_MESSAGE,
-                null,
-                roles,
-                roles[0]);
-
-        if (roleChoice == JOptionPane.CLOSED_OPTION) {
-            return;
-        }
-
-        String userId = "";
-        boolean isLabTech = false;
-
-        if (roleChoice == 0) { // Student
-            userId = JOptionPane.showInputDialog("Enter your Student ID:");
-            if (userId == null) return;
-            isLabTech = false;
-            JOptionPane.showMessageDialog(null, "Welcome, Student " + userId + "!");
-        } else { // Lab Technician
-            boolean ok = false;
-            for (int attempt = 0; attempt < 3; attempt++) {
-                String code = JOptionPane.showInputDialog("Enter 6-digit Lab Technician Code:");
-                if (code == null) return;
-                if (code.equals(LAB_TECH_CODE)) {
-                    isLabTech = true;
-                    ok = true;
-                    JOptionPane.showMessageDialog(null, "Access granted.");
-                    break;
-                } else {
-                    JOptionPane.showMessageDialog(null, "Incorrect. Attempts left: " + (2 - attempt));
+            if (roleChoice == 0) { 
+                // --- STUDENT LOGIN ---
+                String studentId = JOptionPane.showInputDialog("Enter Student ID:");
+                if (studentId != null && !studentId.trim().isEmpty()) {
+                    runStudentMenu(studentId);
                 }
-            }
-            if (!ok) {
-                JOptionPane.showMessageDialog(null, "Access denied.");
-                return;
-            }
-            userId = JOptionPane.showInputDialog("Enter your Lab Tech ID:");
-            if (userId == null) return;
-        }
-
-        // Main loop - GUI menu
-        int choice;
-        do {
-            if (isLabTech) {
-                String menu = "1. View All Equipment\n2. Add Item\n3. Remove Item\n4. Check-Out Equipment\n5. Check-In Equipment\n6. View All Transactions\n7. View Active Checkouts\n8. Exit";
-                String sel = JOptionPane.showInputDialog(menu);
-                if (sel == null) break;
-                choice = Integer.parseInt(sel);
-                switch (choice) {
-                    case 1:
-                        itemManager.viewItems();
-                        break;
-                    case 2:
-                        String name = JOptionPane.showInputDialog("Enter item name:");
-                        if (name == null) break;
-                        int qty = Integer.parseInt(JOptionPane.showInputDialog("Enter quantity:"));
-                        String category = JOptionPane.showInputDialog("Enter category:");
-                        int a = JOptionPane.showOptionDialog(null, "Access level:", "Access Level",
-                                JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null,
-                                new String[]{"Student", "Lab Tech Only"}, "Student");
-                        AccessLevel access = (a == 1 ? AccessLevel.LAB_TECH_ONLY : AccessLevel.STUDENT_ACCESS);
-                        itemManager.addItem(name, qty, category, access);
-                        break;
-                    case 3:
-                        String toRemove = JOptionPane.showInputDialog("Enter item name to remove:");
-                        if (toRemove == null) break;
-                        itemManager.removeItem(toRemove);
-                        break;
-                    case 4:
-                        String outName = JOptionPane.showInputDialog("Enter item name:");
-                        if (outName == null) break;
-                        int outQty = Integer.parseInt(JOptionPane.showInputDialog("Enter quantity:"));
-                        String techId = JOptionPane.showInputDialog("Enter your Lab Tech ID:");
-                        if (techId == null) break;
-                        checkInOutManager.checkOut(techId, outName, outQty, true);
-                        break;
-                    case 5:
-                        String inName = JOptionPane.showInputDialog("Enter item name:");
-                        if (inName == null) break;
-                        int inQty = Integer.parseInt(JOptionPane.showInputDialog("Enter quantity:"));
-                        String tID = JOptionPane.showInputDialog("Enter your Lab Tech ID:");
-                        if (tID == null) break;
-                        checkInOutManager.checkIn(tID, inName, inQty);
-                        break;
-                    case 6:
-                        checkInOutManager.viewTransactionHistory();
-                        break;
-                    case 7:
-                        checkInOutManager.viewActiveCheckouts();
-                        break;
-                    case 8:
-                        JOptionPane.showMessageDialog(null, "Goodbye!");
-                        break;
-                    default:
-                        JOptionPane.showMessageDialog(null, "Invalid choice.");
+                
+            } else if (roleChoice == 1) { 
+                // --- LAB TECH LOGIN ---
+                String code = JOptionPane.showInputDialog("Enter 6-digit Lab Tech Code:");
+                if (LAB_TECH_CODE.equals(code)) {
+                    runLabTechMenu();
+                } else if (code != null) {
+                    JOptionPane.showMessageDialog(null, "Access Denied: Incorrect Code.", "Security Alert", JOptionPane.ERROR_MESSAGE);
                 }
+                
             } else {
-                String menu = "1. View Available Equipment\n2. Check-Out Equipment\n3. Check-In Equipment\n4. View My Borrowed Items\n5. Exit";
-                String sel = JOptionPane.showInputDialog(menu);
-                if (sel == null) break;
-                choice = Integer.parseInt(sel);
-                switch (choice) {
-                    case 1:
-                        itemManager.viewStudentAccessibleItems();
-                        break;
-                    case 2:
-                        String sOut = JOptionPane.showInputDialog("Enter item name:");
-                        if (sOut == null) break;
-                        int sQty = Integer.parseInt(JOptionPane.showInputDialog("Enter quantity:"));
-                        checkInOutManager.checkOut(userId, sOut, sQty, false);
-                        break;
-                    case 3:
-                        String sIn = JOptionPane.showInputDialog("Enter item name:");
-                        if (sIn == null) break;
-                        int sInQty = Integer.parseInt(JOptionPane.showInputDialog("Enter quantity:"));
-                        checkInOutManager.checkIn(userId, sIn, sInQty);
-                        break;
-                    case 4:
-                        checkInOutManager.viewUserBorrowedItems(userId);
-                        break;
-                    case 5:
-                        JOptionPane.showMessageDialog(null, "Goodbye!");
-                        break;
-                    default:
-                        JOptionPane.showMessageDialog(null, "Invalid choice.");
-                }
+                // --- EXIT ---
+                saveAndExit();
+                systemRunning = false;
             }
-        } while ((isLabTech && choice != 8) || (!isLabTech && choice != 5));
-
-        // Save both inventory and transactions before exiting
-        DataManager.saveInventory(itemManager.getItems());
-        DataManager.saveTransactions(checkInOutManager.getTransactions());
+        }
     }
 
-    // Helper method (kept but not needed for GUI because dialogs are inline)
-    private static void showInventoryMenu(ItemManager itemManager, boolean studentOnly) {
-        String[] options = {"Search by Name", "Search by Category", "View All", "Cancel"};
-        int opt = JOptionPane.showOptionDialog(null, "Inventory Options", "Inventory",
-                JOptionPane.DEFAULT_OPTION, JOptionPane.PLAIN_MESSAGE, null, options, options[0]);
-        if (opt == 0) {
-            String searchName = JOptionPane.showInputDialog("Enter item name to search:");
-            if (searchName != null) itemManager.searchByName(searchName, studentOnly);
-        } else if (opt == 1) {
-            String searchCategory = JOptionPane.showInputDialog("Enter category to search:");
-            if (searchCategory != null) itemManager.searchByCategory(searchCategory, studentOnly);
-        } else if (opt == 2) {
-            if (studentOnly) itemManager.viewStudentAccessibleItems();
-            else itemManager.viewItems();
+    // --- STUDENT MENU LOGIC ---
+    private static void runStudentMenu(String userId) {
+        String[] options = {"View Available Equipment", "Check-Out Item", "Check-In Item", "View My Borrowed Items", "Logout"};
+        
+        while (true) {
+            String choice = (String) JOptionPane.showInputDialog(null, 
+                "Logged in as Student: " + userId + "\nWhat would you like to do?", 
+                "Student Dashboard", 
+                JOptionPane.PLAIN_MESSAGE, null, options, options[0]);
+
+            if (choice == null || choice.equals("Logout")) return;
+
+            switch (choice) {
+                case "View Available Equipment":
+                    showItemList(true); // true = Student items only
+                    break;
+                case "Check-Out Item":
+                    performCheckOut(userId, false); // false = not a tech
+                    break;
+                case "Check-In Item":
+                    performCheckIn(userId);
+                    break;
+                case "View My Borrowed Items":
+                    showMyItems(userId);
+                    break;
+            }
         }
+    }
+
+    // --- STUDENT MENU LOGIC ---
+    private static void runLabTechMenu() {
+        String[] options = {
+            "View Full Inventory", 
+            "Add New Item", 
+            "Remove Item", 
+            "Check-Out (Admin)", 
+            "Check-In (Admin)", 
+            "View Transaction History", 
+            "View Active Checkouts", 
+            "Logout"
+        };
+        
+        while (true) {
+            String choice = (String) JOptionPane.showInputDialog(null, 
+                "Logged in as Lab Technician (Admin)\nSelect Action:", 
+                "Admin Dashboard", 
+                JOptionPane.PLAIN_MESSAGE, null, options, options[0]);
+
+            if (choice == null || choice.equals("Logout")) return;
+
+            switch (choice) {
+                case "View Full Inventory":
+                    showItemList(false); // false = Show everything
+                    break;
+                case "Add New Item":
+                    performAddItem();
+                    break;
+                case "Remove Item":
+                    performRemoveItem();
+                    break;
+                case "Check-Out (Admin)":
+                    performCheckOut("TECH_ADMIN", true);
+                    break;
+                case "Check-In (Admin)":
+                    performCheckIn("TECH_ADMIN");
+                    break;
+                case "View Transaction History":
+                    showTransactionHistory();
+                    break;
+                case "View Active Checkouts":
+                    showActiveCheckouts();
+                    break;
+            }
+        }
+    }
+
+    // --- HELPER ACTIONS ---
+    private static void showItemList(boolean studentOnly) {
+        StringBuilder sb = new StringBuilder("--- Inventory List ---\n\n");
+        ArrayList<Item> items = itemManager.getItems();
+        boolean found = false;
+
+        for (Item item : items) {
+            if (studentOnly && item.getAccessLevel() != AccessLevel.STUDENT_ACCESS) continue;
+            
+            sb.append("• ").append(item.getName())
+              .append(" | Qty: ").append(item.getQuantity())
+              .append(" | Category: ").append(item.getCategory())
+              .append("\n");
+            found = true;
+        }
+
+        if (!found) sb.append("No items found.");
+        
+        JTextArea textArea = new JTextArea(sb.toString());
+        textArea.setEditable(false);
+        textArea.setRows(15);
+        textArea.setColumns(40);
+        JOptionPane.showMessageDialog(null, new JScrollPane(textArea), "Inventory", JOptionPane.INFORMATION_MESSAGE);
+    }
+
+    private static void showMyItems(String userId) {
+        StringBuilder sb = new StringBuilder("--- Items Currently Borrowed by " + userId + " ---\n\n");
+        ArrayList<Transaction> transactions = checkInOutManager.getTransactions();
+        boolean found = false;
+
+        for (Transaction t : transactions) {
+            if (t.getUserId().equals(userId) && !t.isReturned()) {
+                sb.append("• ").append(t.getItemName())
+                  .append(" (Qty: ").append(t.getQuantity()).append(")")
+                  .append(" - Out: ").append(t.getCheckOutTime().toLocalDate())
+                  .append("\n");
+                found = true;
+            }
+        }
+        if (!found) sb.append("You have no unreturned items.");
+        JOptionPane.showMessageDialog(null, sb.toString());
+    }
+
+    private static void showTransactionHistory() {
+        StringBuilder sb = new StringBuilder("--- Full Transaction History ---\n\n");
+        ArrayList<Transaction> transactions = checkInOutManager.getTransactions();
+        
+        if (transactions.isEmpty()) sb.append("No history available.");
+
+        for (Transaction t : transactions) {
+            sb.append(t.toString()).append("\n");
+        }
+
+        JTextArea textArea = new JTextArea(sb.toString());
+        textArea.setEditable(false);
+        textArea.setRows(20);
+        textArea.setColumns(60);
+        JOptionPane.showMessageDialog(null, new JScrollPane(textArea), "Transaction Logs", JOptionPane.INFORMATION_MESSAGE);
+    }
+
+    private static void showActiveCheckouts() {
+        StringBuilder sb = new StringBuilder("--- Currently Borrowed Items (Active) ---\n\n");
+        ArrayList<Transaction> transactions = checkInOutManager.getTransactions();
+        boolean found = false;
+
+        for (Transaction t : transactions) {
+            if (!t.isReturned()) {
+                sb.append(t.toString()).append("\n");
+                found = true;
+            }
+        }
+
+        if (!found) sb.append("No active checkouts. All items are returned.");
+
+        JTextArea textArea = new JTextArea(sb.toString());
+        textArea.setEditable(false);
+        textArea.setRows(15);
+        textArea.setColumns(60);
+        JOptionPane.showMessageDialog(null, new JScrollPane(textArea), "Active Checkouts", JOptionPane.INFORMATION_MESSAGE);
+    }
+
+    private static void performAddItem() {
+        // Multi-step input
+        String name = JOptionPane.showInputDialog("Enter Item Name:");
+        if (name == null || name.trim().isEmpty()) return;
+        
+        String qtyStr = JOptionPane.showInputDialog("Enter Initial Quantity:");
+        if (qtyStr == null) return;
+        
+        String cat = JOptionPane.showInputDialog("Enter Category (e.g., Active, Passive):");
+        if (cat == null) return;
+        
+        String[] levels = {"Student Access", "Lab Tech Only"};
+        int type = JOptionPane.showOptionDialog(null, "Select Access Level:", "Security", 
+                0, JOptionPane.QUESTION_MESSAGE, null, levels, levels[0]);
+        
+        AccessLevel access = (type == 1) ? AccessLevel.LAB_TECH_ONLY : AccessLevel.STUDENT_ACCESS;
+        
+        try {
+            int qty = Integer.parseInt(qtyStr);
+            itemManager.addItem(name, qty, cat, access);
+            JOptionPane.showMessageDialog(null, "Success: Item '" + name + "' added to inventory.");
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(null, "Error: Quantity must be a valid number.", "Input Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    private static void performRemoveItem() {
+        String name = JOptionPane.showInputDialog("Enter exact name of item to remove:");
+        if (name != null) {
+            if (itemManager.removeItem(name)) {
+                JOptionPane.showMessageDialog(null, "Success: Item removed.");
+            } else {
+                JOptionPane.showMessageDialog(null, "Error: Item not found.");
+            }
+        }
+    }
+
+    private static void performCheckOut(String userId, boolean isTech) {
+        String name = JOptionPane.showInputDialog("Enter Item Name to Borrow:");
+        if (name == null) return;
+        
+        String qtyStr = JOptionPane.showInputDialog("Enter Quantity:");
+        if (qtyStr == null) return;
+
+        try {
+            int qty = Integer.parseInt(qtyStr);
+            boolean success = checkInOutManager.checkOut(userId, name, qty, isTech);
+            
+            if (success) {
+                JOptionPane.showMessageDialog(null, "Check-Out Successful!");
+            } else {
+                JOptionPane.showMessageDialog(null, "Check-Out Failed.\nReasons:\n1. Item name incorrect?\n2. Not enough stock?\n3. Restricted item?", "Transaction Failed", JOptionPane.WARNING_MESSAGE);
+            }
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(null, "Invalid number format.");
+        }
+    }
+
+    private static void performCheckIn(String userId) {
+        String name = JOptionPane.showInputDialog("Enter Item Name to Return:");
+        if (name == null) return;
+        
+        String qtyStr = JOptionPane.showInputDialog("Enter Quantity to Return:");
+        if (qtyStr == null) return;
+
+        try {
+            int qty = Integer.parseInt(qtyStr);
+            boolean success = checkInOutManager.checkIn(userId, name, qty);
+            
+            if (success) {
+                JOptionPane.showMessageDialog(null, "Item Returned Successfully!");
+            } else {
+                JOptionPane.showMessageDialog(null, "Return Failed.\nEnsure you have an active borrow record for this item.", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(null, "Invalid number format.");
+        }
+    }
+
+    private static void saveAndExit() {
+        DataManager.saveInventory(itemManager.getItems());
+        DataManager.saveTransactions(checkInOutManager.getTransactions());
+        JOptionPane.showMessageDialog(null, "System Data Saved.\nGoodbye!");
+        System.exit(0);
     }
 }
