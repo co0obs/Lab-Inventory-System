@@ -3,15 +3,14 @@ import java.util.Scanner;
 public class Main {
 
     private static final String LAB_TECH_CODE = "423881";
-
     public static void main(String[] args) {
 
         Scanner input = new Scanner(System.in);
         ItemManager itemManager = new ItemManager();
         CheckInOutManager checkInOutManager = new CheckInOutManager(itemManager);
         
-        // Load saved inventory at startup
-        DataManager.loadInventory(itemManager);
+        // Load both inventory and transaction history
+        DataManager.loadData(itemManager, checkInOutManager);
         
         System.out.println("=== LAB INVENTORY SYSTEM ===");
         System.out.println("Select your position:");
@@ -84,7 +83,6 @@ public class Main {
             if (isLabTech) {
                 switch (choice) {
                     case 1:
-                        // View inventory with search options
                         showInventoryMenu(input, itemManager, false);
                         break;
 
@@ -100,7 +98,9 @@ public class Main {
                         int a = input.nextInt();
                         input.nextLine();
                         AccessLevel access = (a == 2 ? AccessLevel.LAB_TECH_ONLY : AccessLevel.STUDENT_ACCESS);
+                        
                         itemManager.addItem(name, qty, category, access);
+                        System.out.println("Item added successfully!");
                         break;
 
                     case 3:
@@ -149,7 +149,6 @@ public class Main {
             } else {
                 switch (choice) {
                     case 1:
-                        // View available equipment with search options
                         showInventoryMenu(input, itemManager, true);
                         break;
 
@@ -186,8 +185,9 @@ public class Main {
 
         } while ((isLabTech && choice != 8) || (!isLabTech && choice != 5));
 
-        // Save inventory before exiting
+        // Save both inventory and transactions before exiting
         DataManager.saveInventory(itemManager.getItems());
+        DataManager.saveTransactions(checkInOutManager.getTransactions());
         
         input.close();
     }

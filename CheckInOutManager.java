@@ -9,6 +9,16 @@ public class CheckInOutManager {
     public CheckInOutManager(ItemManager itemManager) {
         this.itemManager = itemManager;
     }
+
+    // Method for saving data
+    public ArrayList<Transaction> getTransactions() {
+        return transactions;
+    }
+
+    // Method for loading data
+    public void loadTransaction(Transaction t) {
+        transactions.add(t);
+    }
     
     // Check out
     public boolean checkOut(String userId, String itemName, int quantity, boolean isLabTech) {

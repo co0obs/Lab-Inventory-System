@@ -9,7 +9,6 @@ public class ItemManager {
     public void addItem(String name, int quantity, String category, AccessLevel accessLevel) {
         Item newItem = new Item(name, quantity, category, accessLevel);
         items.add(newItem);
-        System.out.println("Item added successfully!");
     }
 
     // Remove item by name

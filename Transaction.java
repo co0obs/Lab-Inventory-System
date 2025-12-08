@@ -10,7 +10,7 @@ public class Transaction {
     private LocalDateTime checkInTime;
     private boolean isReturned;
     
-    // Constructor for check-out
+    // Constructor for new check-outs
     public Transaction(String userId, String itemName, int quantity) {
         this.userId = userId;
         this.itemName = itemName;
@@ -18,6 +18,16 @@ public class Transaction {
         this.checkOutTime = LocalDateTime.now();
         this.checkInTime = null;
         this.isReturned = false;
+    }
+
+    // Constructor for loading from file
+    public Transaction(String userId, String itemName, int quantity, LocalDateTime checkOutTime, LocalDateTime checkInTime, boolean isReturned) {
+        this.userId = userId;
+        this.itemName = itemName;
+        this.quantity = quantity;
+        this.checkOutTime = checkOutTime;
+        this.checkInTime = checkInTime;
+        this.isReturned = isReturned;
     }
     
     // Mark as returned
