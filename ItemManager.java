@@ -1,5 +1,6 @@
 import java.util.ArrayList;
 import java.util.Optional;
+import javax.swing.JOptionPane;
 
 public class ItemManager {
 
@@ -16,7 +17,7 @@ public class ItemManager {
         Optional<Item> itemToRemove = findItemByName(name);
         if (itemToRemove.isPresent()) {
             items.remove(itemToRemove.get());
-            System.out.println("Item removed successfully!");
+            JOptionPane.showMessageDialog(null, "Item Removed Successfully: " + itemToRemove.get().getName());
             return true;
         } else {
             System.out.println("Item not found.");
@@ -26,34 +27,39 @@ public class ItemManager {
 
     // View all items
     public void viewItems() {
-        System.out.println("\n--- Current Inventory ---");
+        StringBuilder sb = new StringBuilder();
+        sb.append("--- Current Inventory ---\n");
         if (items.isEmpty()) {
-            System.out.println("No items in the inventory.");
+            sb.append("No items in the inventory.");
         } else {
             for (int i = 0; i < items.size(); i++) {
-                System.out.println((i + 1) + ". " + items.get(i));
+                sb.append((i+1) + ". " + items.get(i).toString() + "\n");
             }
         }
+        JOptionPane.showMessageDialog(null, sb.toString());
     }
 
     // View items accessible by students
     public void viewStudentAccessibleItems() {
-        System.out.println("\n--- Available Equipment (Student Access) ---");
+        StringBuilder sb = new StringBuilder();
+        sb.append("--- Available Equipment (Student Access) ---\n");
         boolean found = false;
         for (int i = 0; i < items.size(); i++) {
             if (items.get(i).getAccessLevel() == AccessLevel.STUDENT_ACCESS) {
-                System.out.println((i + 1) + ". " + items.get(i));
+                sb.append((i + 1) + ". " + items.get(i).toString() + "\n");
                 found = true;
             }
         }
         if (!found) {
-            System.out.println("No student-accessible items available.");
+            sb.append("No student-accessible items available.");
         }
+        JOptionPane.showMessageDialog(null, sb.toString());
     }
 
     // Search items by name
     public void searchByName(String searchTerm, boolean studentOnly) {
-        System.out.println("\n--- Search Results (Name: " + searchTerm + ") ---");
+        StringBuilder sb = new StringBuilder();
+        sb.append("--- Search Results (Name: " + searchTerm + ") ---\n");
         boolean found = false;
         int count = 1;
         
@@ -63,20 +69,22 @@ public class ItemManager {
             }
             
             if (item.getName().toLowerCase().contains(searchTerm.toLowerCase())) {
-                System.out.println(count + ". " + item);
+                sb.append(count + ". " + item.toString() + "\n");
                 found = true;
                 count++;
             }
         }
         
         if (!found) {
-            System.out.println("No items found matching '" + searchTerm + "'");
+            sb.append("No items found matching '" + searchTerm + "'");
         }
+        JOptionPane.showMessageDialog(null, sb.toString());
     }
 
     // Search items by category
     public void searchByCategory(String category, boolean studentOnly) {
-        System.out.println("\n--- Search Results (Category: " + category + ") ---");
+        StringBuilder sb = new StringBuilder();
+        sb.append("--- Search Results (Category: " + category + ") ---\n");
         boolean found = false;
         int count = 1;
         
@@ -86,15 +94,16 @@ public class ItemManager {
             }
             
             if (item.getCategory().toLowerCase().contains(category.toLowerCase())) {
-                System.out.println(count + ". " + item);
+                sb.append(count + ". " + item.toString() + "\n");
                 found = true;
                 count++;
             }
         }
         
-        if (!found) {
-            System.out.println("No items found in category '" + category + "'");
+       if (!found) {
+            sb.append("No items found in category '" + category + "'");
         }
+        JOptionPane.showMessageDialog(null, sb.toString());
     }
 
     // Find item by name
