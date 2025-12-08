@@ -1,7 +1,6 @@
 import java.io.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import javax.swing.JOptionPane;
 
 public class DataManager {
     
@@ -25,9 +24,9 @@ public class DataManager {
                 writer.write(line);
                 writer.newLine();
             }
-            JOptionPane.showMessageDialog(null, "Inventory saved successfully.");
+            System.out.println("Inventory saved successfully.");
         } catch (IOException e) {
-            JOptionPane.showMessageDialog(null, "Error saving inventory: " + e.getMessage());
+            System.out.println("Error saving inventory: " + e.getMessage());
         }
     }
     
@@ -47,9 +46,9 @@ public class DataManager {
                 writer.write(line);
                 writer.newLine();
             }
-            JOptionPane.showMessageDialog(null, "Transactions history saved successfully.");
+            System.out.println("Transactions history saved successfully.");
         } catch (IOException e) {
-            JOptionPane.showMessageDialog(null, "Error saving transactions: " + e.getMessage());
+            System.out.println("Error saving transactions: " + e.getMessage());
         }
     }
 
@@ -57,7 +56,7 @@ public class DataManager {
     private static void loadInventory(ItemManager itemManager) {
         File file = new File(INVENTORY_FILE);
         if (!file.exists()) {
-            JOptionPane.showMessageDialog(null, "No saved inventory found. Starting with empty stock.");
+            System.out.println("No saved inventory found. Starting with empty stock.");
             return;
         }
         
@@ -72,10 +71,10 @@ public class DataManager {
                 }
             }
             if (count > 0) {
-                JOptionPane.showMessageDialog(null, "Loaded " + count + " item(s) from inventory.");
+                System.out.println("Loaded " + count + " item(s) from inventory.");
             }
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, "Error loading inventory: " + e.getMessage());
+            System.out.println("Error loading inventory: " + e.getMessage());
         }
     }
 
@@ -107,10 +106,10 @@ public class DataManager {
                 }
             }
             if (count > 0) {
-                JOptionPane.showMessageDialog(null, "Loaded " + count + " past transactions.");
+                System.out.println("Loaded " + count + " past transaction(s).");
             }
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, "Error loading transactions: " + e.getMessage());
+            System.out.println("Error loading transactions: " + e.getMessage());
         }
     }
 }

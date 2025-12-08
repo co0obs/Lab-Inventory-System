@@ -1,6 +1,5 @@
 import java.util.ArrayList;
 import java.util.Optional;
-import javax.swing.JOptionPane;
 
 public class CheckInOutManager {
     
@@ -26,26 +25,26 @@ public class CheckInOutManager {
         Optional<Item> itemOpt = itemManager.findItemByName(itemName);
         
         if (!itemOpt.isPresent()) {
-            JOptionPane.showMessageDialog(null, "Error: Item not found.");
+            System.out.println("Error: Item not found.");
             return false;
         }
         
         Item item = itemOpt.get();
         
         if (!isLabTech && item.getAccessLevel() == AccessLevel.LAB_TECH_ONLY) {
-            JOptionPane.showMessageDialog(null, "Error: Only Lab Technicians can access this item.");
+            System.out.println("Error: Only Lab Technicians can access this item.");
             return false;
         }
         
         if (item.getQuantity() < quantity) {
-            JOptionPane.showMessageDialog(null, "Error: Only " + item.getQuantity() + " available.");
+            System.out.println("Error: Only " + item.getQuantity() + " available.");
             return false;
         }
         
         if (itemManager.decreaseQuantity(itemName, quantity)) {
             Transaction t = new Transaction(userId, itemName, quantity);
             transactions.add(t);
-            JOptionPane.showMessageDialog(null, "Checked out successfully!");
+            System.out.println("Checked out successfully!");
             return true;
         }
         
@@ -66,68 +65,60 @@ public class CheckInOutManager {
         }
         
         if (active == null) {
-            JOptionPane.showMessageDialog(null, "Error: No active checkout found.");
+            System.out.println("Error: No active checkout found.");
             return false;
         }
         
         if (quantity > active.getQuantity()) {
-            JOptionPane.showMessageDialog(null, "Error: You only borrowed " + active.getQuantity());
+            System.out.println("Error: You only borrowed " + active.getQuantity());
             return false;
         }
         
         active.markAsReturned();
         itemManager.increaseQuantity(itemName, quantity);
         
-        JOptionPane.showMessageDialog(null, "Checked in successfully!");
+        System.out.println("Checked in successfully!");
         return true;
     }
     
     public void viewUserBorrowedItems(String userId) {
-        StringBuilder sb = new StringBuilder();
-        sb.append("\n--- Your Borrowed Items ---\n");
+        System.out.println("\n--- Your Borrowed Items ---");
         boolean found = false;
         
         for (Transaction t : transactions) {
             if (t.getUserId().equals(userId) && !t.isReturned()) {
-                sb.append(t.toString()).append("\n");
+                System.out.println(t);
                 found = true;
             }
         }
         
         if (!found) {
-            sb.append("None.");
+            System.out.println("None.");
         }
-        JOptionPane.showMessageDialog(null, sb.toString());
     }
 
     public void viewTransactionHistory() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("\n--- Transaction History ---\n");
+        System.out.println("\n--- Transaction History ---");
         if (transactions.isEmpty()) {
-            sb.append("No transaction history.");
-            JOptionPane.showMessageDialog(null, sb.toString());
+            System.out.println("No transaction history.");
             return;
         }
         for (Transaction t : transactions) {
-            sb.append(t.toString()).append("\n");
+            System.out.println(t);
         }
-        JOptionPane.showMessageDialog(null, sb.toString());
     }
 
     public void viewActiveCheckouts() {
         System.out.println("\n--- Active Checkouts ---");
-        StringBuilder sb = new StringBuilder();
-        sb.append("\n--- Active Checkouts ---\n");
         boolean found = false;
         for (Transaction t : transactions) {
             if (!t.isReturned()) {
-                sb.append(t.toString()).append("\n");
+                System.out.println(t);
                 found = true;
             }
         }
         if (!found) {
-            sb.append("No active checkouts.");
+            System.out.println("No active checkouts.");
         }
-        JOptionPane.showMessageDialog(null, sb.toString());
     }
 }
