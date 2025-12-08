@@ -55,9 +55,18 @@ public class Main {
         }
     }
 
-    // --- STUDENT MENU LOGIC ---
+    // ==========================================
+    //           STUDENT MENU LOGIC
+    // ==========================================
     private static void runStudentMenu(String userId) {
-        String[] options = {"View Available Equipment", "Check-Out Item", "Check-In Item", "View My Borrowed Items", "Logout"};
+        String[] options = {
+            "View Available Equipment", 
+            "Search Inventory",     // <-- NEW
+            "Check-Out Item", 
+            "Check-In Item", 
+            "View My Borrowed Items", 
+            "Logout"
+        };
         
         while (true) {
             String choice = (String) JOptionPane.showInputDialog(null, 
@@ -70,6 +79,9 @@ public class Main {
             switch (choice) {
                 case "View Available Equipment":
                     showItemList(true); // true = Student items only
+                    break;
+                case "Search Inventory":
+                    performSearch(true); // true = Filter for students
                     break;
                 case "Check-Out Item":
                     performCheckOut(userId, false); // false = not a tech
@@ -84,10 +96,13 @@ public class Main {
         }
     }
 
-    // --- STUDENT MENU LOGIC ---
+    // ==========================================
+    //           LAB TECH MENU LOGIC
+    // ==========================================
     private static void runLabTechMenu() {
         String[] options = {
             "View Full Inventory", 
+            "Search Inventory",     // <-- NEW
             "Add New Item", 
             "Remove Item", 
             "Check-Out (Admin)", 
@@ -108,6 +123,9 @@ public class Main {
             switch (choice) {
                 case "View Full Inventory":
                     showItemList(false); // false = Show everything
+                    break;
+                case "Search Inventory":
+                    performSearch(false); // false = Search everything
                     break;
                 case "Add New Item":
                     performAddItem();
@@ -131,7 +149,54 @@ public class Main {
         }
     }
 
-    // --- HELPER ACTIONS ---
+    // ==========================================
+    //           HELPER ACTIONS
+    // ==========================================
+
+    private static void performSearch(boolean studentOnly) {
+        String[] searchTypes = {"Search by Name", "Search by Category"};
+        int type = JOptionPane.showOptionDialog(null, "How do you want to search?", "Search Inventory",
+                JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, searchTypes, searchTypes[0]);
+
+        if (type == -1) return; // User closed window
+
+        String term = JOptionPane.showInputDialog("Enter search term:");
+        if (term == null || term.trim().isEmpty()) return;
+
+        StringBuilder sb = new StringBuilder("--- Search Results: '" + term + "' ---\n\n");
+        ArrayList<Item> items = itemManager.getItems();
+        boolean found = false;
+
+        for (Item item : items) {
+            // Filter: If studentOnly is true, skip restricted items
+            if (studentOnly && item.getAccessLevel() != AccessLevel.STUDENT_ACCESS) continue;
+
+            // Logic: Check Name OR Category based on selection
+            boolean match = false;
+            if (type == 0) { // Name
+                match = item.getName().toLowerCase().contains(term.toLowerCase());
+            } else { // Category
+                match = item.getCategory().toLowerCase().contains(term.toLowerCase());
+            }
+
+            if (match) {
+                sb.append("• ").append(item.getName())
+                  .append(" | Qty: ").append(item.getQuantity())
+                  .append(" | Category: ").append(item.getCategory())
+                  .append("\n");
+                found = true;
+            }
+        }
+
+        if (!found) sb.append("No items found matching your search.");
+
+        JTextArea textArea = new JTextArea(sb.toString());
+        textArea.setEditable(false);
+        textArea.setRows(15);
+        textArea.setColumns(40);
+        JOptionPane.showMessageDialog(null, new JScrollPane(textArea), "Search Results", JOptionPane.INFORMATION_MESSAGE);
+    }
+
     private static void showItemList(boolean studentOnly) {
         StringBuilder sb = new StringBuilder("--- Inventory List ---\n\n");
         ArrayList<Item> items = itemManager.getItems();
@@ -213,7 +278,6 @@ public class Main {
     }
 
     private static void performAddItem() {
-        // Multi-step input
         String name = JOptionPane.showInputDialog("Enter Item Name:");
         if (name == null || name.trim().isEmpty()) return;
         
