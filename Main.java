@@ -10,9 +10,6 @@ public class Main {
         ItemManager itemManager = new ItemManager();
         CheckInOutManager checkInOutManager = new CheckInOutManager(itemManager);
 
-        // Load data
-        //DataManager.loadData(itemManager, checkInOutManager);
-
         // Role selection via GUI
         String[] roles = {"Student", "Lab Technician"};
         int roleChoice = JOptionPane.showOptionDialog(null,
@@ -62,7 +59,6 @@ public class Main {
         int choice;
         do {
             if (isLabTech) {
-                DataManager.loadData(itemManager, checkInOutManager);
                 String menu = "1. View All Equipment\n2. Add Item\n3. Remove Item\n4. Check-Out Equipment\n5. Check-In Equipment\n6. View All Transactions\n7. View Active Checkouts\n8. Exit";
                 String sel = JOptionPane.showInputDialog(menu);
                 if (sel == null) break;
