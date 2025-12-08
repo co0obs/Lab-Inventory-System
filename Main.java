@@ -10,7 +10,10 @@ public class Main {
         ItemManager itemManager = new ItemManager();
         CheckInOutManager checkInOutManager = new CheckInOutManager(itemManager);
         
-        System.out.println("\n=== LAB INVENTORY SYSTEM ===");
+        // Load saved inventory at startup
+        DataManager.loadInventory(itemManager);
+        
+        System.out.println("=== LAB INVENTORY SYSTEM ===");
         System.out.println("Select your position:");
         System.out.println("1. Student");
         System.out.println("2. Lab Technician");
@@ -181,6 +184,9 @@ public class Main {
 
         } while ((isLabTech && choice != 8) || (!isLabTech && choice != 5));
 
+        // Save inventory before exiting
+        DataManager.saveInventory(itemManager.getItems());
+        
         input.close();
     }
 }
