@@ -52,6 +52,52 @@ public class ItemManager {
         }
     }
 
+    // Search items by name
+    public void searchByName(String searchTerm, boolean studentOnly) {
+        System.out.println("\n--- Search Results (Name: " + searchTerm + ") ---");
+        boolean found = false;
+        int count = 1;
+        
+        for (Item item : items) {
+            if (studentOnly && item.getAccessLevel() != AccessLevel.STUDENT_ACCESS) {
+                continue;
+            }
+            
+            if (item.getName().toLowerCase().contains(searchTerm.toLowerCase())) {
+                System.out.println(count + ". " + item);
+                found = true;
+                count++;
+            }
+        }
+        
+        if (!found) {
+            System.out.println("No items found matching '" + searchTerm + "'");
+        }
+    }
+
+    // Search items by category
+    public void searchByCategory(String category, boolean studentOnly) {
+        System.out.println("\n--- Search Results (Category: " + category + ") ---");
+        boolean found = false;
+        int count = 1;
+        
+        for (Item item : items) {
+            if (studentOnly && item.getAccessLevel() != AccessLevel.STUDENT_ACCESS) {
+                continue;
+            }
+            
+            if (item.getCategory().toLowerCase().contains(category.toLowerCase())) {
+                System.out.println(count + ". " + item);
+                found = true;
+                count++;
+            }
+        }
+        
+        if (!found) {
+            System.out.println("No items found in category '" + category + "'");
+        }
+    }
+
     // Find item by name
     public Optional<Item> findItemByName(String name) {
         for (Item item : items) {

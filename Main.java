@@ -84,7 +84,8 @@ public class Main {
             if (isLabTech) {
                 switch (choice) {
                     case 1:
-                        itemManager.viewItems();
+                        // View inventory with search options
+                        showInventoryMenu(input, itemManager, false);
                         break;
 
                     case 2:
@@ -148,7 +149,8 @@ public class Main {
             } else {
                 switch (choice) {
                     case 1:
-                        itemManager.viewStudentAccessibleItems();
+                        // View available equipment with search options
+                        showInventoryMenu(input, itemManager, true);
                         break;
 
                     case 2:
@@ -188,5 +190,42 @@ public class Main {
         DataManager.saveInventory(itemManager.getItems());
         
         input.close();
+    }
+
+    // Helper method to show inventory search menu
+    private static void showInventoryMenu(Scanner input, ItemManager itemManager, boolean studentOnly) {
+        System.out.println("\n--- Inventory Options ---");
+        System.out.println("1. Search by Name");
+        System.out.println("2. Search by Category");
+        System.out.println("3. View All");
+        System.out.print("Enter your choice: ");
+        
+        int searchChoice = input.nextInt();
+        input.nextLine();
+        
+        switch (searchChoice) {
+            case 1:
+                System.out.print("Enter item name to search: ");
+                String searchName = input.nextLine();
+                itemManager.searchByName(searchName, studentOnly);
+                break;
+                
+            case 2:
+                System.out.print("Enter category to search: ");
+                String searchCategory = input.nextLine();
+                itemManager.searchByCategory(searchCategory, studentOnly);
+                break;
+                
+            case 3:
+                if (studentOnly) {
+                    itemManager.viewStudentAccessibleItems();
+                } else {
+                    itemManager.viewItems();
+                }
+                break;
+                
+            default:
+                System.out.println("Invalid choice.");
+        }
     }
 }
